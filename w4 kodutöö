@@ -1,0 +1,16 @@
+Õige script:
+
+def second_largest_manual(lst):
+    largest = float("-inf")
+    last_largest = float("-inf")
+    for number in lst:
+        if number > largest:
+            last_largest = largest
+            largest = number
+        elif number > last_largest:
+            last_largest = number
+    return last_largest
+
+Vead:
+    1) Arvud, mis on väiksemad kui maksimum, kuid suuremad kui teine ​​suurim arv, jäetakse vahele. Teist suurimat arvu uuendatakse ainult siis, kui leitakse uus maksimum. Kõik nende vahele jäävad arvud ignoreeritakse.
+    2) Kuna alguses oli meil 0, ei saanud me negatiivsete arvudega töötada.

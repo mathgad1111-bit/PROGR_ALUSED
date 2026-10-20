@@ -1,0 +1,41 @@
+def kiisu(i):
+    return "*" * i
+
+for i in range(1, 6):
+    print(kiisu(i))
+    
+
+
+def kiisuke(i):
+    return (" " * (6 - i) + "*" * i)
+
+for i in range(1, 6):
+    print(kiisuke(i))
+    
+
+
+def kiisukene(i):
+    return (" " * (6 - i) + "*" * (2 * i - 1))
+
+for i in range(1, 5):
+    print(kiisukene(i))
+    
+    
+    
+def klassi_kiisu(kõrgus, sümbol):
+    for i in range(kõrgus):
+        print((kõrgus - 1 - i) * " " + (2 * i + 1) * sümbol)
+
+klassi_kiisu(5, "*")
+    
+
+
+def kiisukeneke(i):
+    parem_kõrv = (" " * (i - 1) + "*" * (9 - 2 * i) + " " * (i - 1))
+    vasak_kõrv = (" " * (4 - i) + "*" * (2 * i - 1) + " " * (4 - i))
+    return (vasak_kõrv + " " + "|" + " " + parem_kõrv)
+
+for i in range(1, 5):
+    print(kiisukeneke(i))
+    
+    

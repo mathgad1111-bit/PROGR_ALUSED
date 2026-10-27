@@ -1,0 +1,52 @@
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
+
+import requests
+
+API = "https://dashboard.elering.ee/api/nps/price"
+FAILI_NIMI = "hinnad.txt"
+ODAVAIM_FAIL = "odavaim.txt"
+KALLEIM_FAIL = "kalleim.txt"
+EESTI = ZoneInfo("Europe/Tallinn")
+
+
+def tanased_hinnad() -> dict[datetime, float]:
+    tana = datetime.now(EESTI).date()
+    algus = datetime.combine(tana, time.min, tzinfo=EESTI)
+    lopp = datetime.combine(tana, time.max, tzinfo=EESTI)
+    vastus = requests.get(API, params={"start": algus.isoformat(), "end": lopp.isoformat()})
+    vastus.raise_for_status()
+
+    hinnad = {}
+    for kirje in vastus.json()["data"]["ee"]:
+        aeg = datetime.fromtimestamp(kirje["timestamp"], EESTI)
+        hinnad[aeg] = kirje["price"]
+    return hinnad
+
+
+def salvesta_txt(hinnad: dict[datetime, float], failinimi: str) -> None:
+    with open(failinimi, "w", encoding="utf-8") as f:
+        for aeg, hind in hinnad.items():
+            f.write(f"{aeg:%Y-%m-%d %H:%M}  {hind:7.2f} EUR/MWh\n")
+
+
+def main() -> None:
+    hinnad = tanased_hinnad()
+    salvesta_txt(hinnad, FAILI_NIMI)
+    print(f"Salvestatud faili {FAILI_NIMI}\n")
+    print(f"{datetime.now(EESTI):%Y-%m-%d} elektrihinnad ({len(hinnad)} intervalli):")
+    for aeg, hind in hinnad.items():
+        print(f"  {aeg:%H:%M}  {hind:7.2f} EUR/MWh")
+
+    odavaim = min(hinnad, key=hinnad.get)
+    kalleim = max(hinnad, key=hinnad.get)
+    print(f"\nOdavaim: {odavaim:%H:%M} {hinnad[odavaim]:.2f} EUR/MWh")
+    print(f"Kalleim: {kalleim:%H:%M} {hinnad[kalleim]:.2f} EUR/MWh")
+
+    salvesta_txt({odavaim: hinnad[odavaim]}, ODAVAIM_FAIL)
+    salvesta_txt({kalleim: hinnad[kalleim]}, KALLEIM_FAIL)
+    print(f"Salvestatud failidesse {ODAVAIM_FAIL} ja {KALLEIM_FAIL}")
+
+
+if __name__ == "__main__":
+    main()

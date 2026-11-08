@@ -1,0 +1,31 @@
+nimekiri = [1, 2, 3, 4]
+vanus = 5
+pilsner_hind = 1.20
+sõna = "auto"
+print(type(nimekiri))
+print(type(vanus))
+print(type(pilsner_hind))
+print(type(sõna))
+print(sõna)
+
+def kontrollitav(vanuse_kontroll):
+    vanused = {14: "Süüalune",
+               16: "Elektoraat"}
+   
+    if vanuse_kontroll >= 18:
+        print("Joodik")
+    if vanuse_kontroll >= 21:
+        print("Sõltuv kasiinost")
+    if vanuse_kontroll >= 24:
+        print("Truck driver")
+    if vanuse_kontroll >= 40:
+        print("President")
+
+nimi = input("Mis su nimi on?")
+sünniaasta = int(input("Mis su sünniaasta on?"))
+
+vanus = 2026 - sünniaasta
+print("Tere,", nimi,".", "Su vanus on umbes", vanus,".")
+print("Sa oled:")
+kontrollitav(vanus)
+

@@ -1,0 +1,10 @@
+def minu_func(a, b):
+    return a+b
+
+
+minu_fun = lambda a, b : a + b
+
+
+print(minu_fun)
+print(minu_func)
+print(    minu_fun(3,59))

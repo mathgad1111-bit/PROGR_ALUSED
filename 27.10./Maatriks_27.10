@@ -1,0 +1,16 @@
+def maatriksi_tegija():
+    maatriks = [[1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9]]
+    return maatriks
+
+def print_diag(maatriks):
+    suurus = len(maatriks)
+    for el in range(suurus):
+        print((maatriks[el])[- el + 2])
+
+m = maatriksi_tegija()
+for rida in m:
+    print(rida)
+
+print_diag(m)

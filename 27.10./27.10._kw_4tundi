@@ -1,0 +1,59 @@
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
+
+import requests
+
+API = "https://dashboard.elering.ee/api/nps/price"
+FAIL = "4_kw_koormus.txt"
+EESTI = ZoneInfo("Europe/Tallinn")
+AKEN = 16  # 4 tundi = 16 mõõtmist
+
+
+def tanased_hinnad() -> dict[datetime, float]:
+    tana = datetime.now(EESTI).date()
+    algus = datetime.combine(tana, time.min, tzinfo=EESTI)
+    lopp = datetime.combine(tana, time.max, tzinfo=EESTI)
+    vastus = requests.get(API, params={"start": algus.isoformat(), "end": lopp.isoformat()})
+    vastus.raise_for_status()
+
+    hinnad = {}
+    for kirje in vastus.json()["data"]["ee"]:
+        aeg = datetime.fromtimestamp(kirje["timestamp"], EESTI)
+        hinnad[aeg] = kirje["price"]
+    return hinnad
+
+
+def leia_odavaim_aken(hinnad: dict[datetime, float], aken: int) -> list:
+    ajad = list(hinnad.keys())
+    hinnad_list = list(hinnad.values())
+
+    parim_algus = 0
+    parim_summa = sum(hinnad_list[0:aken])
+
+    for algus in range(1, len(hinnad_list) - aken + 1):
+        summa = sum(hinnad_list[algus:algus + aken])
+        if summa < parim_summa:
+            parim_summa = summa
+            parim_algus = algus
+
+    return ajad[parim_algus:parim_algus + aken]
+
+
+def main() -> None:
+    hinnad = tanased_hinnad()
+    valitud = leia_odavaim_aken(hinnad, AKEN)
+
+    summa = 0
+    with open(FAIL, "w", encoding="utf-8") as f:
+        for aeg in valitud:
+            hind = hinnad[aeg]
+            summa += hind
+            f.write(f"{aeg:%Y-%m-%d %H:%M}  {hind:7.2f} EUR/MWh\n")
+        f.write(f"\nKeskmine hind: {summa / AKEN:.2f} EUR/MWh\n")
+
+    print(f"Odavaim 4 tundi: {valitud[0]:%H:%M} - {valitud[-1]:%H:%M}")
+    print(f"Salvestatud faili {FAIL}")
+
+
+if __name__ == "__main__":
+    main()
